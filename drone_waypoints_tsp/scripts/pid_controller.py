@@ -3,7 +3,7 @@ import rospy
 import sys
 
 # for calling TSP solver in a python3 script
-import subprocess
+#import subprocess
 
 from geometry_msgs.msg import PoseStamped #Message type for psoe information
 from geometry_msgs.msg import Twist #Message type for velocity information
@@ -11,12 +11,13 @@ from geometry_msgs.msg import Twist #Message type for velocity information
 global uav1_pose #global value for drone position
 global prev_time #global value for storing the time
 
-# generate random waypoints and path to follow
-# TODO get rid of subprocess which crashes roslaunch and doesn't get the namespace right
-out = subprocess.check_output(['python3', 'random_points_tsp.py', '5'], stderr=subprocess.STDOUT)
-out = out.split(';')
-coords = [map(int, i.split()) for i in out[:-1]]
-path = map(int, out[-1].split())
+ns = rospy.get_namespace()
+
+with open(sys.argv[1] + ns[:-1] + '_points.txt', 'r') as fp:
+    out = fp.read()
+    out = out.split(';')
+    coords = [map(int, i.split()) for i in out[:-1]]
+    path = map(int, out[-1].split())
 
 print(coords, path)
 
@@ -31,9 +32,9 @@ def uav1PoseCallback(data):
 rospy.init_node('Pos_hold', anonymous=True)
 # TODO let roslaunch remap the namespace
 # Subscribe to the topic publishing position
-rospy.Subscriber('/drone1/ground_truth_to_tf/pose', PoseStamped, uav1PoseCallback)
+rospy.Subscriber('/ground_truth_to_tf/pose', PoseStamped, uav1PoseCallback)
 # Create a publisher for the velocities
-pub = rospy.Publisher('/drone1/cmd_vel', Twist, queue_size=10)
+pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
 
 # PID values for the x,y and z axis. Change for better performance
 pid_x = [0.5,0.001,0.01]
@@ -52,7 +53,6 @@ prev_total_error = [0, 0, 0]
 
 # destination position - (x,y,z)
 dest_pose = coords[path[0]]
-reached = False
 
 # the current time as caluclated bt ROS -> Time from the start of the ros master
 prev_time = rospy.get_rostime().nsecs # get in nano seconds
@@ -60,9 +60,10 @@ prev_time = rospy.get_rostime().nsecs # get in nano seconds
 # loop that runs as long as the ros master runs and there exists points to discover
 while not rospy.is_shutdown() and path:
 
-    if abs(pose_error[0]) < .01 and abs(pose_error[1]) < .01 and abs(pose_error[2]) < .01:
+    if abs(pose_error[0]) < .03 and abs(pose_error[1]) < .03 and abs(pose_error[2]) < .03:
         path = path[1:]
-        dest_pose = coords[path[0]]
+        if path:
+            dest_pose = coords[path[0]]
         pose_error = [0, 0, 0]
         prev_pose_error = [0, 0, 0]
         prev_total_error = [0, 0, 0]
