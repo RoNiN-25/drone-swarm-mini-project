@@ -1,10 +1,12 @@
 <?xml version="1.0"?>
 
 <launch>
-
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="world_name" default="$(find drone_color_follow)/car_description/worlds/car.world"/>
   </include>
+
+  <node pkg="rosservice" name="motors" type="rosservice" args="call --wait /uav1/enable_motors 'true'" />
+
 
   <!--Spawn simulated quadrotor uav -->
   <group ns="uav1">
