@@ -26,7 +26,7 @@ def uav1PoseCallback(data):
     uav1_pose = data
 
 # Ros node initialization
-rospy.init_node('Pos_hold', anonymous=True)
+rospy.init_node('waypoints_traveller', anonymous=True)
 # Subscribe to the topic publishing position
 rospy.Subscriber('/ground_truth_to_tf/pose', PoseStamped, uav1PoseCallback)
 # Create a publisher for the velocities
