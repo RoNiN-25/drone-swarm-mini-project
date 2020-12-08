@@ -6,7 +6,7 @@ from geometry_msgs.msg import Twist #Message type for velocity information
 global uav1_pose #global value for drone position
 global prev_time #global value for storing the time
 
-uav1_pose=PoseStamped() #empty initialization
+uav1_pose = PoseStamped() #empty initialization
 
 #callback for the position data
 def uav1PoseCallback(data):
@@ -44,32 +44,30 @@ prev_time = rospy.get_rostime().nsecs # get in nano seconds
 
 # inifinite loop that runs as long as the ros master runs
 while not rospy.is_shutdown():
-    #print(uav1_pose)
-	
-	
+
     #Calculate errors of the x,y and z axis
     pose_error = [dest_pose[0]-uav1_pose.pose.position.x,
                   dest_pose[1]-uav1_pose.pose.position.y,
                   dest_pose[2]-uav1_pose.pose.position.z]
 
     #print('error',pose_error)
-	
-	# set velocity values to 0
+
+    # set velocity values to 0
     vel_x = 0
     vel_y = 0
     vel_z = 0
-	
-	# get current time
+
+    # get current time
     now = rospy.get_rostime().nsecs
-    
+
     # calculate time difference from the previous loop
     diff = float(now - prev_time)/1e9
-    
+
     # edge case: First loop - both now and prev_time are equal, So diff = 0. Make it the one loop time = 1/rate = 1/30
     if(diff == 0):
         diff = 0.033
 
-    #Preventing integral windup
+    # Preventing integral windup
     if(pose_error[0]<=0.005):
         prev_total_error[0] = 0
 
@@ -79,13 +77,13 @@ while not rospy.is_shutdown():
     if(pose_error[2]<=0.005):
         prev_total_error[2] = 0
 
-    #Calculating the pid values
+    # Calculating the pid values
     # o/p = Kp*error + Ki*sum of errors + kd*(prev_err*curr_err)/time
     vel_x = pid_x[0]*pose_error[0] + pid_x[2]*((prev_pose_error[0]-pose_error[0])/diff) + pid_x[1]*prev_total_error[0]
     vel_y = pid_y[0]*pose_error[1] + pid_y[2]*((prev_pose_error[1]-pose_error[2])/diff) + pid_y[1]*prev_total_error[1]
     vel_z = pid_z[0]*pose_error[2] + pid_z[2]*((prev_pose_error[2]-pose_error[2])/diff) + pid_z[1]*prev_total_error[2]
 
-    #Update the errors for the integrals
+    # Update the errors for the integrals
     prev_total_error[2] += pose_error[2]
     prev_total_error[1] += pose_error[1]
     prev_total_error[0] += pose_error[0]
@@ -98,17 +96,16 @@ while not rospy.is_shutdown():
     if(vel_y > 5):
     	vel_y = 5
 
-
-    #Setting the values to be published
+    # Setting the values to be published
     vel.linear.x = vel_x
     vel.linear.y = vel_y
     vel.linear.z = vel_z
     
-    #publish the data
+    # publish the data
     pub.publish(vel)
 	
-	#Set prev_error as the current_error to use in the next loop
+    # Set prev_error as the current_error to use in the next loop
     prev_pose_error = pose_error
 	
-	# Sleep for the rate time
+    # Sleep for the rate time
     rate.sleep()

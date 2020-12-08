@@ -2,6 +2,8 @@
 import rospy
 import sys
 
+from pyquaternion import Quaternion
+
 from drone_waypoints_tsp.msg import leader
 from geometry_msgs.msg import Twist
 
@@ -12,6 +14,10 @@ import cv2
 
 from geometry_msgs.msg import PoseStamped #Message type for pose information
 from geometry_msgs.msg import Twist #Message type for velocity information
+
+# -----------------------------------------------------------------
+# The namespaces are hardcoded for individual drones in this script
+# -----------------------------------------------------------------
 
 # to get information about the current leader
 def checkLeader(data):
@@ -69,7 +75,7 @@ global prev_time #global value for storing the time
 
 ns = rospy.get_namespace()
 
-with open('drone1_points.txt', 'r') as fp:
+with open('drone2_points.txt', 'r') as fp:
     out = fp.read()
     out = out.split(';')
     coords = [map(int, i.split()) for i in out[:-1]]
@@ -267,29 +273,42 @@ elif leaderInfo.found and leaderInfo.id != N:
     pose_error = [0, 0, 0]
     prev_pose_error = [0, 0, 0]
     prev_total_error = [0, 0, 0]
+    pid_x = [1.05, 0.017, 0.31]
+    pid_y = [1.05, 0.017, 0.31]
+    pid_z = [1.05, 0.017, 0.31]
 
     # the current time as caluclated bt ROS -> Time from the start of the ros master
     prev_time = rospy.get_rostime().nsecs # get in nano seconds
 
     # loop that runs as long as the ros master runs and the bot isn't found yet
     while not rospy.is_shutdown():
+        q = Quaternion(leader_pose.pose.orientation.w, leader_pose.pose.orientation.x,
+                       leader_pose.pose.orientation.y, leader_pose.pose.orientation.z)
+        
         if N == 1:
-            dest_pose = [leader_pose.pose.position.x + 1,
-                         leader_pose.pose.position.y,
-                         leader_pose.pose.position.z]
-
-        elif N == 2:
-            dest_pose = [leader_pose.pose.position.x,
-                         leader_pose.pose.position.y + 1,
-                         leader_pose.pose.position.z]
+            relative_pose = [2, 0, 0]
+            dest_pose = q.rotate(relative_pose)
+            dest_pose = [leader_pose.pose.position.x + dest_pose[0],
+                         leader_pose.pose.position.y + dest_pose[1],
+                         leader_pose.pose.position.z + dest_pose[2]]
+        elif N == 2    :
+            relative_pose = [0, 2, 0]
+            dest_pose = q.rotate(relative_pose)
+            dest_pose = [leader_pose.pose.position.x + dest_pose[0],
+                         leader_pose.pose.position.y + dest_pose[1],
+                         leader_pose.pose.position.z + dest_pose[2]]
         elif N == 3:
-            dest_pose = [leader_pose.pose.position.x - 1,
-                         leader_pose.pose.position.y,
-                         leader_pose.pose.position.z]
+            relative_pose = [-2, 0, 0]
+            dest_pose = q.rotate(relative_pose)
+            dest_pose = [leader_pose.pose.position.x + dest_pose[0],
+                         leader_pose.pose.position.y + dest_pose[1],
+                         leader_pose.pose.position.z + dest_pose[2]]
         elif N == 4:
-            dest_pose = [leader_pose.pose.position.x,
-                         leader_pose.pose.position.y - 1,
-                         leader_pose.pose.position.z]
+            relative_pose = [0, -2, 0]
+            dest_pose = q.rotate(relative_pose)
+            dest_pose = [leader_pose.pose.position.x + dest_pose[0],
+                         leader_pose.pose.position.y + dest_pose[1],
+                         leader_pose.pose.position.z + dest_pose[2]]
 
         #Calculate errors of the x,y and z axis
         pose_error = [dest_pose[0] - uav1_pose.pose.position.x,
@@ -340,10 +359,15 @@ elif leaderInfo.found and leaderInfo.id != N:
         if vel_y > 5:
             vel_y = 5
 
+        qt = Quaternion(uav1_pose.pose.orientation.w, uav1_pose.pose.orientation.x,
+                        uav1_pose.pose.orientation.y, uav1_pose.pose.orientation.z)
+        qt_inv = qt.inverse
+        vel_rotate = qt_inv.rotate([vel_x, vel_y, vel_z])
+
         #Setting the values to be published
-        vel_msg.linear.x = vel_x
-        vel_msg.linear.y = vel_y
-        vel_msg.linear.z = vel_z
+        vel_msg.linear.x = vel_rotate[0]
+        vel_msg.linear.y = vel_rotate[1]
+        vel_msg.linear.z = vel_rotate[2]
         
         #publish the data
         vel_pub.publish(vel_msg)
@@ -353,3 +377,5 @@ elif leaderInfo.found and leaderInfo.id != N:
         
         # Sleep for the rate time
         rate.sleep()
+
+print "exit - hard"

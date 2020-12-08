@@ -2,9 +2,6 @@
 import rospy
 import sys
 
-# for calling TSP solver in a python3 script
-#import subprocess
-
 from geometry_msgs.msg import PoseStamped #Message type for psoe information
 from geometry_msgs.msg import Twist #Message type for velocity information
 
@@ -30,7 +27,6 @@ def uav1PoseCallback(data):
 
 # Ros node initialization
 rospy.init_node('Pos_hold', anonymous=True)
-# TODO let roslaunch remap the namespace
 # Subscribe to the topic publishing position
 rospy.Subscriber('/ground_truth_to_tf/pose', PoseStamped, uav1PoseCallback)
 # Create a publisher for the velocities
@@ -98,13 +94,13 @@ while not rospy.is_shutdown() and path:
     if(pose_error[2]<=0.005):
         prev_total_error[2] = 0
 
-    #Calculating the pid values
+    # Calculating the pid values
     # o/p = Kp*error + Ki*sum of errors + kd*(prev_err*curr_err)/time
     vel_x = pid_x[0]*pose_error[0] + pid_x[2]*((prev_pose_error[0]-pose_error[0])/diff) + pid_x[1]*prev_total_error[0]
     vel_y = pid_y[0]*pose_error[1] + pid_y[2]*((prev_pose_error[1]-pose_error[1])/diff) + pid_y[1]*prev_total_error[1]
     vel_z = pid_z[0]*pose_error[2] + pid_z[2]*((prev_pose_error[2]-pose_error[2])/diff) + pid_z[1]*prev_total_error[2]
 
-    #Update the errors for the integrals
+    # Update the errors for the integrals
     prev_total_error[2] += pose_error[2]
     prev_total_error[1] += pose_error[1]
     prev_total_error[0] += pose_error[0]
@@ -112,9 +108,9 @@ while not rospy.is_shutdown() and path:
     prev_time = now
     
     # limit the x and y velocites to max 5m/s. Can be reduced if needed. Might have to change PID values for optimal performance
-    if(vel_x > 5):
+    if vel_x > 5:
         vel_x = 5
-    if(vel_y > 5):
+    if vel_y > 5:
         vel_y = 5
 
     #Setting the values to be published
