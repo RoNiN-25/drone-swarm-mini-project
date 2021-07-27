@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<launch>
+    <group ns="drone1">
+        <remap from="/cmd_vel" to="/drone1/cmd_vel" />
+        <remap from="/ground_truth_to_tf/pose" to="/drone1/ground_truth_to_tf/pose" />
+        <remap from="/front_cam/camera/image" to="/drone1/front_cam/camera/image"/>
+        <node pkg="swarm_search" name="controller" type="pid_controller.py" args="$(find swarm_search)/scripts" output="screen">
+        </node>
+    </group>
+
+    <group ns="drone2">
+        <remap from="/cmd_vel" to="/drone2/cmd_vel" />
+        <remap from="/ground_truth_to_tf/pose" to="/drone2/ground_truth_to_tf/pose" />
+        <remap from="/front_cam/camera/image" to="/drone2/front_cam/camera/image"/>
+        <node pkg="swarm_search" name="controller" type="pid_controller.py" args="$(find swarm_search)/scripts" output="screen">
+        </node>
+    </group>
+
+    <group ns="drone3">
+        <remap from="/cmd_vel" to="/drone3/cmd_vel" />
+        <remap from="/ground_truth_to_tf/pose" to="/drone3/ground_truth_to_tf/pose" />
+        <remap from="/front_cam/camera/image" to="/drone3/front_cam/camera/image"/>
+        <node pkg="swarm_search" name="controller" type="pid_controller.py" args="$(find swarm_search)/scripts" output="screen">
+        </node>
+    </group>
+
+    <group ns="drone4">
+        <remap from="/cmd_vel" to="/drone4/cmd_vel" />
+        <remap from="/ground_truth_to_tf/pose" to="/drone4/ground_truth_to_tf/pose" />
+        <remap from="/front_cam/camera/image" to="/drone4/front_cam/camera/image"/>
+        <node pkg="swarm_search" name="controller" type="pid_controller.py" args="$(find swarm_search)/scripts" output="screen">
+        </node>
+    </group>
+    
+</launch>

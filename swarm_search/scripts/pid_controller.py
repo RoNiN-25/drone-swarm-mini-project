@@ -42,7 +42,7 @@ def image_callback(data):
     high_blue = np.array([126, 255, 255])
     hsv_frame = cv2.cvtColor(image,cv2.COLOR_BGR2HSV)
     mask = cv2.inRange(hsv_frame, low_blue, high_blue)
-    _, contours, h = cv2.findContours(mask,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+    contours, h = cv2.findContours(mask,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
     image = cv2.drawContours(image, contours, -1, (0,255,255), 3)
 
     if not contours:
@@ -208,8 +208,8 @@ vel_msg.linear.y = 0
 vel_msg.linear.z = 0
 vel_pub.publish(vel_msg)
 
-im_pid_x = [0.05,0,0] #0.01,0,0
-im_pid_z = [0.01, 5e-4, 0] #0.01,0,0
+im_pid_x = [0.05,5e-4,0] #0.01,0,0
+im_pid_z = [0.05, 5e-4, 0] #0.01,0,0
 im_pid_az = [0.01,0,0] #0.01,0,0
 
 # set variables for PID based tracking of the object
@@ -344,9 +344,9 @@ elif leaderInfo.found and leaderInfo.id != N:
         prev_time = now
         
         # limit the x and y velocites to max 5m/s. Can be reduced if needed. Might have to change PID values for optimal performance
-        if vel_x > 5:
+        if abs(vel_x) > 5:
             vel_x = 5
-        if vel_y > 5:
+        if abs(vel_y) > 5:
             vel_y = 5
 
         qt = Quaternion(uav1_pose.pose.orientation.w, uav1_pose.pose.orientation.x,
