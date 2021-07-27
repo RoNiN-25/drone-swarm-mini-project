@@ -24,8 +24,8 @@
 
     <remap from="/cmd_vel" to="/drone1/cmd_vel" />
     <remap from="/ground_truth_to_tf/pose" to="/drone1/ground_truth_to_tf/pose" />
-    <node pkg="swarm_search" name="controller" type="pid_controller.py" args="$(find swarm_search)/scripts" output="screen">
-    </node>
+    <!-- <node pkg="swarm_search" name="controller" type="pid_controller.py" args="$(find swarm_search)/scripts" output="screen">
+    </node> -->
 
   </group>
 
@@ -46,8 +46,8 @@
 
     <remap from="/cmd_vel" to="/drone2/cmd_vel" />
     <remap from="/ground_truth_to_tf/pose" to="/drone2/ground_truth_to_tf/pose" />
-    <node pkg="swarm_search" name="controller" type="pid_controller.py" args="$(find swarm_search)/scripts" output="screen">
-    </node>
+    <!-- <node pkg="swarm_search" name="controller" type="pid_controller.py" args="$(find swarm_search)/scripts" output="screen">
+    </node> -->
 
   </group>
 
@@ -68,8 +68,8 @@
 
     <remap from="/cmd_vel" to="/drone3/cmd_vel" />
     <remap from="/ground_truth_to_tf/pose" to="/drone3/ground_truth_to_tf/pose" />
-    <node pkg="swarm_search" name="controller" type="pid_controller.py" args="$(find swarm_search)/scripts" output="screen">
-    </node>
+    <!-- <node pkg="swarm_search" name="controller" type="pid_controller.py" args="$(find swarm_search)/scripts" output="screen">
+    </node> -->
 
   </group>
 
@@ -90,8 +90,8 @@
 
     <remap from="/cmd_vel" to="/drone4/cmd_vel" />
     <remap from="/ground_truth_to_tf/pose" to="/drone4/ground_truth_to_tf/pose" />
-    <node pkg="swarm_search" name="controller" type="pid_controller.py" args="$(find swarm_search)/scripts" output="screen">
-    </node>
+    <!-- <node pkg="swarm_search" name="controller" type="pid_controller.py" args="$(find swarm_search)/scripts" output="screen">
+    </node> -->
 
   </group>
 

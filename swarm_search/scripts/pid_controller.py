@@ -4,7 +4,8 @@ import sys
 
 from pyquaternion import Quaternion
 
-from drone_waypoints_tsp.msg import leader
+# from drone_waypoints_tsp.msg import leader
+from swarm_search.msg import leader
 from geometry_msgs.msg import Twist
 
 from cv_bridge import CvBridge
@@ -367,4 +368,4 @@ elif leaderInfo.found and leaderInfo.id != N:
         # Sleep for the rate time
         rate.sleep()
 
-print "exit - hard"
+print ("exit - hard")
